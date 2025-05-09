@@ -1,4 +1,4 @@
-from hydra_rules_service import HydraRulesService
+from services.hydra_rules_service import HydraRulesService
 from columns_keys import (
     COLUMN_BASAL_DISC,
     COLUMN_MOUNTH,
@@ -15,7 +15,7 @@ class GenerateScoreTOrE:
         self.sheet = sheet
         self.hydra_rules_service = HydraRulesService()
 
-    def calculate_score_in_six_to_ten_range(
+    def _calculate_score_in_six_to_ten_range(
         self,
         column_comparaison: int,
         total_tentacles_upper: int,
@@ -83,7 +83,7 @@ class GenerateScoreTOrE:
             score = 5
         # Default cell_D = 1 and cell_E = 1 and cell_F = 0 for a score sup a 5
         elif not hydra_not_have_mouth and cell_E == 1 and cell_F == 0:
-            score = self.calculate_score_in_six_to_ten_range(
+            score = self._calculate_score_in_six_to_ten_range(
                 column_comparaison,
                 total_tentacles_upper,
                 has_more_tentacles

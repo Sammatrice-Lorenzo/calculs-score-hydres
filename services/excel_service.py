@@ -28,3 +28,8 @@ class ExcelService:
         cell = self._sheet.cell(row=row, column=column)
 
         cell.value = value
+
+    def save_file(self, filename: str):
+        name = f"{filename.replace('.xlsx', '')}_score_calculated.xlsx"
+
+        self.get_workbook().save(name)
