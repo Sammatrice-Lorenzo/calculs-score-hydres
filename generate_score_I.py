@@ -29,16 +29,21 @@ class GenerateScoreI:
             has_started_tentacles and not has_more_tentacles
         )
 
-        if tentacles_up_and_surpassing or tentacles_creation_finished:
-            return 6
-        if total_tentacles_upper_half_long_body == 1:
-            return 7
-        if total_tentacles_upper_half_long_body in (2, 3):
-            return 8
-        if total_tentacles_upper_half_long_body >= 4:
+        base_scores: dict[int, int] = {
+            0: 6,
+            1: 7,
+            2: 8,
+            3: 8
+        }
+
+        if tentacles_creation_finished or tentacles_up_and_surpassing:
+            score = base_scores[0]
+        elif total_tentacles_upper_half_long_body in base_scores:
+            score = base_scores[total_tentacles_upper_half_long_body]
+        elif total_tentacles_upper_half_long_body >= 4:
             return 10
 
-        return 0
+        return score
 
     def get_score_I(
         self,
