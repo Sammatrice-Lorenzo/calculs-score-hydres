@@ -17,7 +17,8 @@ class GenerateScoreM:
 
     def _calculate_score_in_six_to_ten_range(
         self,
-        total_tentacles_upper: int,
+        tentacles_surpass_half_body: int,
+        has_started_tentacles: bool,
         has_more_tentacles: bool
     ) -> float:
 
@@ -28,16 +29,23 @@ class GenerateScoreM:
             3: 8
         }
 
-        if has_more_tentacles and total_tentacles_upper == 0:
+        tentacles_up_and_surpassing = (
+            has_more_tentacles and tentacles_surpass_half_body == 0
+        )
+        tentacles_creation_finished = (
+            has_started_tentacles and not has_more_tentacles
+        )
+
+        if tentacles_creation_finished or tentacles_up_and_surpassing:
             score = base_scores[0]
-        elif total_tentacles_upper in base_scores:
-            score = base_scores[total_tentacles_upper]
-        elif total_tentacles_upper >= 4:
+        elif tentacles_surpass_half_body in base_scores:
+            score = base_scores[tentacles_surpass_half_body]
+        elif tentacles_surpass_half_body >= 4:
             return 10
 
         return score
 
-    def get_score_M(self, row: int, total_tentacles_upper: int) -> float:
+    def get_score_M(self, row: int, tentacles_surpass_half_body: int) -> float:
         cell_D = self.sheet.cell(row=row, column=COLUMN_MOUNTH).value
         cell_E = self.sheet.cell(row=row, column=COLUMN_BASAL_DISC).value
         cell_F = self.sheet.cell(row=row, column=COLUMN_START_TENTACLES).value
@@ -64,18 +72,27 @@ class GenerateScoreM:
             row,
         )
 
-        basal_disc_with_extra_tentacles: bool = has_basal_disc and has_more_tentacles and total_tentacles_upper == 0
-        has_basal_disc_without_tentacles: bool = not hydra_not_have_mouth and cell_E == 1 and cell_F == 0
+        cell_F = self.sheet.cell(row=row, column=COLUMN_START_TENTACLES).value
+        has_started_tentacles = cell_F == 1
+        basal_disc_with_extra_tentacles: bool = (
+            has_basal_disc and has_more_tentacles and tentacles_surpass_half_body == 0
+        )
+        has_basal_disc_without_tentacles: bool = not hydra_not_have_mouth and cell_E == 1
+
+        has_basal_with_started_tentacles: bool = (
+            has_basal_disc_without_tentacles and not has_started_tentacles and cell_M == 0
+        )
 
         if score is not None:
             return score
-        elif basal_disc_with_extra_tentacles or (has_basal_disc_without_tentacles and cell_M == 0):
+        elif basal_disc_with_extra_tentacles or (has_basal_with_started_tentacles):
             score = 5
         # Default cell_D = 1 and cell_E = 1 and cell_F = 0 for a score sup a 5
         elif has_basal_disc_without_tentacles:
             score = self._calculate_score_in_six_to_ten_range(
-                total_tentacles_upper,
-                has_more_tentacles
+                tentacles_surpass_half_body=tentacles_surpass_half_body,
+                has_more_tentacles=has_more_tentacles,
+                has_started_tentacles=has_started_tentacles
             )
 
         return score

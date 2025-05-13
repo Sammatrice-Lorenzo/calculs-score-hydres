@@ -77,7 +77,7 @@ class ScoreBuilder:
     def _calculate_scores(self, row: int, values: dict):
         score_T = self.score_calculator_T_E.get_score_T_or_E(
             row=row,
-            total_tentacles_upper=values["cell_N"],
+            tentacles_surpass_half_body=values["cell_N"],
             column_comparaison=values["cell_J"]
         )
         score_I = self.score_calculator_I.get_score_I(row, values["cell_O"])
