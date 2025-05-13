@@ -57,16 +57,6 @@ class GenerateScoreTOrE:
             score = base_scores[tentacles_surpass_half_body]
         elif tentacles_surpass_half_body >= 4:
             return 10 if is_above_average_body else 9
-        # if has_started_tentacles:
-        #     if not has_more_tentacles:
-        #         score = base_scores[0]
-        # else:
-        #     if has_more_tentacles and tentacles_surpass_half_body == 0:
-        #         score = base_scores[0]
-        #     elif tentacles_surpass_half_body in base_scores:
-        #         score = base_scores[tentacles_surpass_half_body]
-        #     elif tentacles_surpass_half_body >= 4:
-        #         return 10 if is_above_average_body else 9
 
         return score + 0.5 if is_above_average_body else score
 
@@ -90,24 +80,21 @@ class GenerateScoreTOrE:
         hydra_not_have_mouth: bool = (
             self.hydra_rules_service.hydra_not_have_mouth(cell_D)
         )
-        has_more_tentacles: bool = self.hydra_rules_service.has_more_tentacles(
-            cell_M
-        )
-
-        has_basal_disc: bool = self.hydra_rules_service.has_basal_disc(
-            cell_D,
-            cell_E,
-            cell_F
-        )
 
         score = self.hydra_rules_service.calculate_score_base_conditions(
             self.sheet,
             row,
         )
 
+        is_hydra_complete = self.hydra_rules_service.is_hydra_complete(
+            self.sheet,
+            row,
+            tentacles_surpass_half_body
+        )
+
         if score is not None:
             return score
-        elif has_basal_disc and has_more_tentacles and tentacles_surpass_half_body == 0:
+        elif is_hydra_complete:
             score = 5
         # Default cell_D = 1 and cell_E = 1 and cell_F = 0 for a score sup a 5
         elif not hydra_not_have_mouth and cell_E == 1:

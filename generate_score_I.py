@@ -65,22 +65,20 @@ class GenerateScoreI:
             cell_M
         )
 
-        has_basal_disc: bool = self.hydra_rules_service.has_basal_disc(
-            cell_D,
-            cell_E,
-            cell_F
-        )
-
-        cell_F = self.sheet.cell(row=row, column=COLUMN_START_TENTACLES).value
-
         score = self.hydra_rules_service.calculate_score_base_conditions(
             self.sheet,
             row,
         )
 
+        is_hydra_complete = self.hydra_rules_service.is_hydra_complete(
+            self.sheet,
+            row,
+            total_tentacles_upper_half_long_body
+        )
+
         if score is not None:
             return score
-        elif has_basal_disc and has_more_tentacles and total_tentacles_upper_half_long_body == 0:
+        elif is_hydra_complete:
             score = 5
         # Default cell_D = 1 and cell_E = 1 and cell_F = 0 for a score sup a 5
         elif not hydra_not_have_mouth and cell_E == 1:

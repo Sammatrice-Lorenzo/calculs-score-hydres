@@ -54,45 +54,39 @@ class GenerateScoreM:
             column=COLUMN_NUMBER_TOTAL_OF_TENTACLES
         ).value
 
-        hydra_not_have_mouth: bool = self.hydra_rules_service.hydra_not_have_mouth(
+        hydra_not_have_mouth = self.hydra_rules_service.hydra_not_have_mouth(
             cell_D
         )
-        has_more_tentacles: bool = self.hydra_rules_service.has_more_tentacles(
+        has_more_tentacles = self.hydra_rules_service.has_more_tentacles(
             cell_M
         )
 
-        has_basal_disc: bool = self.hydra_rules_service.has_basal_disc(
-            cell_D,
-            cell_E,
-            cell_F
+        base_score = self.hydra_rules_service.calculate_score_base_conditions(
+            self.sheet,
+            row
         )
+        if base_score is not None:
+            return base_score
 
-        score = self.hydra_rules_service.calculate_score_base_conditions(
+        is_hydra_complete = self.hydra_rules_service.is_hydra_complete(
             self.sheet,
             row,
+            tentacles_surpass_half_body
         )
 
-        cell_F = self.sheet.cell(row=row, column=COLUMN_START_TENTACLES).value
         has_started_tentacles = cell_F == 1
-        basal_disc_with_extra_tentacles: bool = (
-            has_basal_disc and has_more_tentacles and tentacles_surpass_half_body == 0
-        )
-        has_basal_disc_without_tentacles: bool = not hydra_not_have_mouth and cell_E == 1
-
-        has_basal_with_started_tentacles: bool = (
+        has_basal_disc_without_tentacles = not hydra_not_have_mouth and cell_E == 1
+        has_basal_with_started_tentacles = (
             has_basal_disc_without_tentacles and not has_started_tentacles and cell_M == 0
         )
 
-        if score is not None:
-            return score
-        elif basal_disc_with_extra_tentacles or (has_basal_with_started_tentacles):
-            score = 5
-        # Default cell_D = 1 and cell_E = 1 and cell_F = 0 for a score sup a 5
+        if is_hydra_complete or has_basal_with_started_tentacles:
+            return 5
         elif has_basal_disc_without_tentacles:
-            score = self._calculate_score_in_six_to_ten_range(
+            return self._calculate_score_in_six_to_ten_range(
                 tentacles_surpass_half_body=tentacles_surpass_half_body,
                 has_more_tentacles=has_more_tentacles,
                 has_started_tentacles=has_started_tentacles
             )
 
-        return score
+        return None
